@@ -3,3 +3,4 @@ pandas
 pycaret
 plotly
 scikit-learn
+openpyxl
