@@ -4,3 +4,6 @@ pycaret
 plotly
 scikit-learn
 openpyxl
+matplotlib
+matplotlib-venn
+numpy

@@ -2,7 +2,11 @@ import json
 import streamlit as st
 import pandas as pd
 from pycaret.clustering import load_model, predict_model
-import plotly.express as px 
+import plotly.express as px
+import matplotlib.pyplot as plt
+from matplotlib_venn import venn3
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
 
 MODEL_NAME = 'welcome_survey_clustering_pipeline_v2'
 DATA = 'welcome_survey_simple_v2.xlsx'
@@ -10,7 +14,7 @@ CLUSTER_NAMES_AND_DESCRIPTIONS = 'welcome_survey_cluster_names_and_descriptions_
 
 def reset_button():
     for key in st.session_state.keys():
-        del st.session_state[key]  
+        del st.session_state[key]
 
 if "name" not in st.session_state:
     st.session_state["name"] = ""
@@ -23,7 +27,6 @@ with st.sidebar:
 
 st.title("🤩 Find your friends APP 🤩")
 
-
 if st.session_state["name"]:
     st.header(f"""Hello, {st.session_state["name"]}!
 Find persons which have similar personalities.""")
@@ -31,7 +34,7 @@ Find persons which have similar personalities.""")
     @st.cache_data
     def get_model():
         return load_model(MODEL_NAME)
-    
+
     @st.cache_data
     def get_cluster_names_and_descriptions():
         with open(CLUSTER_NAMES_AND_DESCRIPTIONS, "r", encoding='utf-8') as f:
@@ -45,7 +48,6 @@ Find persons which have similar personalities.""")
         return df_with_clusters
 
     with st.sidebar:
-
         age = st.selectbox("Select your age", ["<18", "18-24", "25-34", "35-44", "45-54", "55-64", ">=65", 'unknown'])
         edu_level = st.radio("Select your education", ["primary", "secondary", "higher"])
         fav_animals = st.selectbox("Select your favorite animals", ["cats", "dogs", "exotic", "cats & dogs", "No favourites"])
@@ -66,19 +68,20 @@ Find persons which have similar personalities.""")
     all_df = get_all_participants()
     cluster_names_and_descriptions = get_cluster_names_and_descriptions()
 
-
     st.write("Your data:")
     st.dataframe(person_df, hide_index=True)
 
     predicted_cluster_id = predict_model(model, data=person_df)["Cluster"].values[0]
-    predicted_cluster_data = cluster_names_and_descriptions[predicted_cluster_id]
+    predicted_cluster_data = cluster_names_and_descriptions[str(predicted_cluster_id)]
 
     st.header(f"The closest Cluster to you is {predicted_cluster_data['name']}")
-    st.markdown(predicted_cluster_data['description'])   
+    st.markdown(predicted_cluster_data['description'])
     same_cluster_df = all_df[all_df["Cluster"] == predicted_cluster_id]
     st.metric("Number of your friends", len(same_cluster_df))
 
     st.header("Persons in the group")
+
+    # Существующие графики
     fig = px.histogram(same_cluster_df.sort_values("age"), x="age")
     fig.update_layout(
         title="Age distribution in the group",
@@ -136,6 +139,104 @@ Find persons which have similar personalities.""")
         title="Favorite Animals Distribution Across Clusters"
     )
     st.plotly_chart(fig_bar_animals)
+
+    # Обновленная диаграмма Венна (только для выбранного кластера)
+    st.header("Venn Diagram of Attributes in Your Cluster")
+
+    # Проверяем, достаточно ли данных для построения диаграммы Венна
+    if len(same_cluster_df) >= 2:
+        # Создание множеств на основе атрибутов внутри выбранного кластера
+        set_animals = set(same_cluster_df[same_cluster_df['fav_animals'] == 'dogs'].index)
+        set_place = set(same_cluster_df[same_cluster_df['fav_place'] == 'By the water'].index)
+        set_edu = set(same_cluster_df[same_cluster_df['edu_level'] == 'higher'].index)
+
+        # Построение диаграммы Венна
+        plt.figure(figsize=(8, 8))
+        venn = venn3(
+            [set_animals, set_place, set_edu],
+            set_labels=('Dog Lovers', 'Prefer Water', 'Higher Education')
+        )
+
+        # Настройка цветов и прозрачности
+        subset_ids = ('100', '010', '001', '110', '101', '011', '111')
+        colors = {
+            '100': '#FF9999',  # Только собаки
+            '010': '#66B2FF',  # Только вода
+            '001': '#99FF99',  # Только высшее образование
+            '110': '#FFCC99',  # Собаки и вода
+            '101': '#C2C2F0',  # Собаки и высшее образование
+            '011': '#F0E68C',  # Вода и высшее образование
+            '111': '#D3D3D3'   # Все три
+        }
+
+        for subset_id in subset_ids:
+            patch = venn.get_patch_by_id(subset_id)
+            if patch:
+                patch.set_color(colors[subset_id])
+                patch.set_alpha(0.7)
+
+        # Добавление заголовка
+        plt.title('Overlap Between Dog Lovers, Water Preference, and Higher Education in Your Cluster')
+
+        # Отображение графика в Streamlit
+        st.pyplot(plt.gcf())
+    else:
+        st.write("Not enough data in this cluster to display the Venn Diagram.")
+
+    # Обновленный 3D спиральный гистограмма (только для выбранного кластера)
+    st.header("3D Spiral Histogram of Participant Attributes in Your Cluster")
+
+    # Проверяем, достаточно ли данных для построения 3D графика
+    if len(same_cluster_df) >= 2:
+        # Подготовка данных для графика
+        features = ['age', 'edu_level', 'fav_animals', 'fav_place', 'gender']
+
+        # Преобразование категориальных данных в числовые
+        data_numeric = same_cluster_df.copy()
+        for col in features:
+            data_numeric[col] = data_numeric[col].astype('category').cat.codes
+
+        # Создание спирали
+        theta = np.linspace(0, 4 * np.pi, len(data_numeric))
+        z = np.linspace(-2, 2, len(data_numeric))
+        r = np.linspace(0.1, 1, len(data_numeric))
+
+        # Создание фигуры и оси для 3D графика
+        fig_spiral = plt.figure(figsize=(14, 10))
+        ax = fig_spiral.add_subplot(111, projection='3d')
+
+        # Цвета для каждой характеристики
+        colors = plt.cm.plasma(np.linspace(0, 1, len(features)))
+
+        # Построение 3D столбцов по спирали для каждой характеристики
+        for index, column in enumerate(features):
+            values = data_numeric[column].values
+            x = r * np.sin(theta + index)
+            y = r * np.cos(theta + index)
+            dz = values
+
+            # Построение столбцов на спиральном пути
+            ax.bar3d(x, y, z, dx=0.05, dy=0.05, dz=dz, color=colors[index], alpha=0.7, label=column)
+
+            # Изменение z для создания 3D эффекта
+            z += 0.4
+
+        # Установка меток и заголовка
+        ax.set_title('3D Spiral Histogram of Participant Attributes in Your Cluster', fontsize=20)
+        ax.set_xlabel('X-axis')
+        ax.set_ylabel('Y-axis')
+        ax.set_zlabel('Attribute Values')
+
+        # Настройка угла обзора
+        ax.view_init(elev=30, azim=120)
+
+        # Добавление легенды
+        ax.legend()
+
+        # Отображение графика в Streamlit
+        st.pyplot(fig_spiral)
+    else:
+        st.write("Not enough data in this cluster to display the 3D Spiral Histogram.")
 
 else:
     st.info("Please enter your name to start.")
