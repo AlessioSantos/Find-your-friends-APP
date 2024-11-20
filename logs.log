@@ -8565,3 +8565,79 @@ The default of observed=False is deprecated and will be changed to True in a fut
 Circle B has zero area.
 
 
+2024-11-20 20:52:19,502:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2024-11-20 20:52:19,502:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2024-11-20 20:52:19,502:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2024-11-20 20:52:19,502:WARNING:
+'cuml' is a soft dependency and not included in the pycaret installation. Please run: `pip install cuml` to install.
+2024-11-20 20:52:25,208:INFO:Initializing load_model()
+2024-11-20 20:52:25,208:INFO:load_model(model_name=welcome_survey_clustering_pipeline_v2, platform=None, authentication=None, verbose=True)
+2024-11-20 20:52:25,448:INFO:Initializing predict_model()
+2024-11-20 20:52:25,448:INFO:predict_model(self=<pycaret.clustering.oop.ClusteringExperiment object at 0x00000240BC3C0D90>, estimator=Pipeline(memory=Memory(location=None),
+         steps=[('numerical_imputer',
+                 TransformerWrapper(include=[], transformer=SimpleImputer())),
+                ('categorical_imputer',
+                 TransformerWrapper(include=['age', 'edu_level', 'fav_animals',
+                                             'fav_place', 'gender'],
+                                    transformer=SimpleImputer(strategy='most_frequent'))),
+                ('ordinal_encoding',
+                 TransformerWrapper(include=['gender'],
+                                    transfo...
+                                                               mapping=[{'col': 'gender',
+                                                                         'data_type': dtype('O'),
+                                                                         'mapping': Man      0
+Woman    1
+NaN     -1
+dtype: int64}]))),
+                ('onehot_encoding',
+                 TransformerWrapper(include=['age', 'edu_level', 'fav_animals',
+                                             'fav_place'],
+                                    transformer=OneHotEncoder(cols=['age',
+                                                                    'edu_level',
+                                                                    'fav_animals',
+                                                                    'fav_place'],
+                                                              handle_missing='return_nan',
+                                                              use_cat_names=True))),
+                ('trained_model', KMeans(random_state=123))]), ml_usecase=None)
+2024-11-20 20:52:25,448:INFO:Set up data.
+2024-11-20 20:52:25,627:INFO:Initializing predict_model()
+2024-11-20 20:52:25,628:INFO:predict_model(self=<pycaret.clustering.oop.ClusteringExperiment object at 0x00000240BCA11090>, estimator=Pipeline(memory=Memory(location=None),
+         steps=[('numerical_imputer',
+                 TransformerWrapper(include=[], transformer=SimpleImputer())),
+                ('categorical_imputer',
+                 TransformerWrapper(include=['age', 'edu_level', 'fav_animals',
+                                             'fav_place', 'gender'],
+                                    transformer=SimpleImputer(strategy='most_frequent'))),
+                ('ordinal_encoding',
+                 TransformerWrapper(include=['gender'],
+                                    transfo...
+                                                               mapping=[{'col': 'gender',
+                                                                         'data_type': dtype('O'),
+                                                                         'mapping': Man      0
+Woman    1
+NaN     -1
+dtype: int64}]))),
+                ('onehot_encoding',
+                 TransformerWrapper(include=['age', 'edu_level', 'fav_animals',
+                                             'fav_place'],
+                                    transformer=OneHotEncoder(cols=['age',
+                                                                    'edu_level',
+                                                                    'fav_animals',
+                                                                    'fav_place'],
+                                                              handle_missing='return_nan',
+                                                              use_cat_names=True))),
+                ('trained_model', KMeans(random_state=123))]), ml_usecase=None)
+2024-11-20 20:52:25,628:INFO:Set up data.
+2024-11-20 20:52:25,931:WARNING:C:\Users\PC\Desktop\Mod_7\find_friends_v_3\app.py:132: FutureWarning:
+
+The default of observed=False is deprecated and will be changed to True in a future version of pandas. Pass observed=False to retain current behavior or observed=True to adopt the future default and silence this warning.
+
+
+2024-11-20 20:52:25,995:WARNING:C:\Users\PC\miniconda3\envs\od_zera_do_ai\Lib\site-packages\matplotlib_venn\layout\venn3\pairwise.py:111: UserWarning:
+
+Circle C has zero area.
+
+
